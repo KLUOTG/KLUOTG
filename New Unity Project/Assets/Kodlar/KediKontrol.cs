@@ -8,27 +8,32 @@ public class KediKontrol : MonoBehaviour
     [Range(0,20)]
     private float hiz;
     [SerializeField]
-    [Range(0, 20)]
+    [Range(0, 100)]
     private float ziplamaHiz;
-
+    
 
     float horizontal;
     float hareket;
+
+    //ui
+    int altinSayisi=0;
+    public int saglik=100;
+
+    public float xEkseni=0;
+
     Vector2 vek;
     Animator anim;
     Rigidbody2D rb;
-    public bool yerdeMi;
     public LayerMask zeminLayer;
     void Start()
     {
         anim = gameObject.GetComponent<Animator>();
         rb = gameObject.GetComponent<Rigidbody2D>();
+        altinSayisi = PlayerPrefs.GetInt("altinSayisi");
     }
     
     void Update()
     {
-        yerdeMi = isYerdemi();
-
         horizontal = Input.GetAxis("Horizontal");
         hareket += horizontal * hiz * Time.deltaTime;
         vek = new Vector2(hareket, transform.position.y);
@@ -38,9 +43,13 @@ public class KediKontrol : MonoBehaviour
         {
             if (isYerdemi()==true)
             {
-                KarakterZipla();
+                KarakterZipla(ziplamaHiz);
             }
             
+        }
+        if (saglik <= 0)
+        {
+            saglik = 0;
         }
 
         if (horizontal < 0)
@@ -62,6 +71,28 @@ public class KediKontrol : MonoBehaviour
         }
 
     }
+    IEnumerator HasarAl()
+    {
+        saglik -= Random.Range(7, 15);
+        gameObject.GetComponent<SpriteRenderer>().color = Color.red;//vakit kalırsa animasyonda yap burayı
+        transform.position = new Vector2(transform.position.x, transform.position.y + 0.5f);//isterseniz silebilirsiniz.
+        yield return new WaitForSeconds(0.5f);
+        gameObject.GetComponent<SpriteRenderer>().color = Color.white;
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.tag == "Altin")
+        {
+            altinSayisi += 1;
+            PlayerPrefs.SetInt("altinSayisi", altinSayisi);
+            collision.gameObject.SetActive(false);
+        }
+        if (collision.tag == "Goblin")
+        {
+            StartCoroutine(HasarAl());
+
+        }
+    }
     bool isYerdemi()
     {
         Vector2 karakterPozisyon = transform.position;
@@ -74,7 +105,7 @@ public class KediKontrol : MonoBehaviour
         }
         return false;
     }
-    void KarakterZipla()
+    void KarakterZipla(float ziplamaHiz)
     {
         rb.AddForce(Vector2.up*ziplamaHiz);
     }
