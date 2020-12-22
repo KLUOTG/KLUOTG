@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class KediKontrol : MonoBehaviour
 {
@@ -26,9 +27,14 @@ public class KediKontrol : MonoBehaviour
     Rigidbody2D rb;
     public LayerMask zeminLayer;
 
+    public Text canBari;
+    public Text altinBari;
+
+    public Animator altinBariAnimasyon;
     //public Goblin[] goblinler;
     void Start()
     {
+
         anim = gameObject.GetComponent<Animator>();
         rb = gameObject.GetComponent<Rigidbody2D>();
         altinSayisi = PlayerPrefs.GetInt("altinSayisi");
@@ -49,19 +55,9 @@ public class KediKontrol : MonoBehaviour
         
         if (hayattaMi == true)
         {
-            horizontal = Input.GetAxis("Horizontal");
             hareket += horizontal * hiz * Time.deltaTime;
             vek = new Vector2(hareket, transform.position.y);
             transform.position = vek;
-            if (Input.GetButton("Jump"))
-            {
-                if (isYerdemi() == true)
-                {
-                    KarakterZipla(ziplamaHiz);
-                }
-
-            }
-
             if (saglik <= 0)
             {
                 KediOl();
@@ -85,10 +81,22 @@ public class KediKontrol : MonoBehaviour
                 anim.SetBool("yuruyorMu", false);
             }
         }
+        string canBaslangicMetni = "Can : ";
+        canBari.text = canBaslangicMetni + GetKediCan().ToString();
+
+        string altinBaslangicMetni = "Altın Sayısı : ";
+        altinBari.text = altinBaslangicMetni + getKediAltin().ToString();
+    }
+    public void hareketEt(float hareketYonu){
+         horizontal = hareketYonu;
     }
     public int GetKediCan()
     {
         return saglik;
+    }
+    public int getKediAltin()
+    {
+        return altinSayisi;
     }
     public void KediOl()
     {
@@ -129,6 +137,7 @@ public class KediKontrol : MonoBehaviour
             altinSayisi += 1;
             PlayerPrefs.SetInt("altinSayisi", altinSayisi);
             collision.gameObject.SetActive(false);
+            altinBariAnimasyon.SetTrigger("altinAlindi");
         }
         if (collision.tag == "Goblin")
         {
@@ -159,8 +168,11 @@ public class KediKontrol : MonoBehaviour
         }
         return false;
     }
-    void KarakterZipla(float ziplamaHiz)
+    public void KarakterZipla(float ziplamaHiz)
     {
-        rb.AddForce(Vector2.up*ziplamaHiz);
+        if (isYerdemi() == true)
+            {
+                rb.AddForce(Vector2.up*ziplamaHiz);
+            }
     }
 }
