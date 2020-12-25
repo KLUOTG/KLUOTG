@@ -30,11 +30,14 @@ public class KediKontrol : MonoBehaviour
     public Text canBari;
     public Text altinBari;
 
+    public Text UsernameText;
     public Animator altinBariAnimasyon;
+
     //public Goblin[] goblinler;
     void Start()
     {
-
+        string usernamePref = PlayerPrefs.GetString("Username");
+        UsernameText.text = usernamePref;
         anim = gameObject.GetComponent<Animator>();
         rb = gameObject.GetComponent<Rigidbody2D>();
         altinSayisi = PlayerPrefs.GetInt("altinSayisi");
